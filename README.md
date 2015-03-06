@@ -1,3 +1,3 @@
 # scripts
-personal random scripts
+personal random python,perl,bash etc scripts
 
