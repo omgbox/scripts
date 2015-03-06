@@ -1,0 +1,30 @@
+#!/bin/bash -x
+
+find /var/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec mv "{}" /var/fix/ \;
+
+sleep 1
+#correct file names stage 1
+cd /var/fix
+for f in *; do mv -- "$f" "${f//[][(){\}]}"; done
+
+sleep 1 
+#correct file names stage 2 final 
+cd /var/fix
+for infile in *.*;
+do 
+#replace " - " with a single underscore.
+NEWFILE1=`echo $infile | sed 's/\s-\s/_/g'`; 
+#replace spaces with underscores
+NEWFILE2=`echo $NEWFILE1 | sed 's/\s/_/g'`; 
+#replace "-" dashes with underscores.
+NEWFILE3=`echo $NEWFILE2 | sed 's/-/_/g'`; 
+#remove exclamation points
+NEWFILE4=`echo $NEWFILE3 | sed 's/!//g'`; 
+#remove commas
+NEWFILE5=`echo $NEWFILE4 | sed 's/,//g'`; 
+mv "$infile" "/var/fix/$NEWFILE5";
+done;
+
+sleep 1
+
+find /var/fix -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec megasync --local /var/fix --remote  /Root \; && rm -rf /var/fix/*
