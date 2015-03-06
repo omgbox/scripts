@@ -1,4 +1,3 @@
 # scripts
-random scripts
+personal random scripts
 
-personal scripts used for hubby crapware
