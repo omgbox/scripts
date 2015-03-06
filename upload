@@ -3,12 +3,12 @@
 find /var/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec mv "{}" /var/fix/ \;
 
 sleep 1
-#correct file names stage 1
+#fix ugly file names
 cd /var/fix
 for f in *; do mv -- "$f" "${f//[][(){\}]}"; done
 
 sleep 1 
-#correct file names stage 2 final 
+#correct ugly file names 
 cd /var/fix
 for infile in *.*;
 do 
@@ -27,4 +27,5 @@ done;
 
 sleep 1
 
+#here we use megatools from debian sid, to sync local directory of files to remote mega.co.nz account
 find /var/fix -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec megasync --local /var/fix --remote  /Root \; && rm -rf /var/fix/*
