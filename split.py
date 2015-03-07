@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#python3 required
+
 import subprocess
 import re
 import math
