@@ -1,5 +1,5 @@
 #!/bin/bash -x
-
+#move allowed files from torrent folder
 find /var/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec mv "{}" /var/fix/ \;
 
 sleep 1
