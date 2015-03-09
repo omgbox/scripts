@@ -1,3 +1,4 @@
+#!/bin/bash
 wget http://wordpress.org/latest.tar.gz
 tar zxf latest.tar.gz
 cd wordpress
