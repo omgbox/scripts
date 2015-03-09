@@ -1,0 +1,5 @@
+#mookmarks do not stay after reboot :(
+
+nano ~/.gtk-bookmarks
+ftp://{userid}@ftp.site.com/ {Comment}
+ssh://user@site.com/ Example
