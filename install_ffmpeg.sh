@@ -9,5 +9,16 @@ sleep 1
 
 cp ffmpeg /usr/bin/ffmpeg
 
+sleep 1
+
+rm ffmpeg
+
+sleep 1
+
+rm ffprobe
+
+sleep 1
+
+rm *.gz
 
 
