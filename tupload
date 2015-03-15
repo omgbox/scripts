@@ -1,0 +1,3 @@
+#!/bin/bash -x
+#find all extensions and start upload to youtube
+find /var/youtube -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec youtube-upload --email=xxxxxxx@gmail.com --password=xxxxxx --title="{}" --description="{}" --category=Games --keywords="{}" "{}" \;
