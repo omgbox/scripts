@@ -1,0 +1,38 @@
+#!/bin/bash -x
+
+find /var/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec mv "{}" /var/encoder/ \;
+
+sleep 1
+
+#correct file names stage 1
+cd /var/encoder
+for f in *; do mv -- "$f" "${f//[][(){\}]}"; done
+
+sleep 1
+ 
+#correct file names stage 2 final 
+cd /var/encoder
+for infile in *.*;
+do 
+#replace " - " with a single underscore.
+NEWFILE1=`echo $infile | sed 's/\s-\s/_/g'`; 
+#replace spaces with underscores
+NEWFILE2=`echo $NEWFILE1 | sed 's/\s/_/g'`; 
+#replace "-" dashes with underscores.
+NEWFILE3=`echo $NEWFILE2 | sed 's/-/_/g'`; 
+#remove exclamation points
+NEWFILE4=`echo $NEWFILE3 | sed 's/!//g'`; 
+#remove commas
+NEWFILE5=`echo $NEWFILE4 | sed 's/,//g'`; 
+mv "$infile" "/var/encoder/$NEWFILE5";
+done;
+
+sleep 1
+
+DIR=/var/encoder
+find $DIR -type f |
+while read i
+do
+strippedFilename=$(echo $i | rev | cut -d/ -f1 | cut -d. -f2- | rev)
+#Encode MPEG4 SHIT
+ffmpeg -y -i "$i" -f mp4 -vcodec mpeg4 -b 300k -r 24 -vf scale=320:240 -aspect 16:10 -acodec libvo_aacenc -ar 22050 -ac 2 -ab 48k ${strippedFilename}.mp4 -y && rm -rf "$i" ; done
