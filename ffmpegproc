@@ -35,4 +35,4 @@ while read i
 do
 strippedFilename=$(echo $i | rev | cut -d/ -f1 | cut -d. -f2- | rev)
 #Encode MPEG4 SHIT
-ffmpeg -y -i "$i" -f mp4 -vcodec mpeg4 -b 300k -r 24 -vf scale=320:240 -aspect 16:10 -acodec libvo_aacenc -ar 22050 -ac 2 -ab 48k ${strippedFilename}.mp4 -y && rm -rf "$i" ; done
+ffmpeg -y -i "$i" -f mp4 -vcodec mpeg4 -b 512k -r 24 -vf scale=320:240 -aspect 16:10 -acodec libvo_aacenc -ar 22050 -ac 2 -ab 48k ${strippedFilename}.mp4 -y && rm -rf "$i" ; done
