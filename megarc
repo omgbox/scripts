@@ -1,0 +1,5 @@
+nano ~/.megarc (on linux) or mega.ini file containing these 3 lines:
+
+[Login]
+Username = your@email
+Password = yourpassword
