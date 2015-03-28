@@ -7,4 +7,3 @@ megals --reload
 sleep 1
 
 megals --export > /var/www/html/index.html
-
