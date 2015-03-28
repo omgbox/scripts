@@ -1,0 +1,10 @@
+nano /usr/bin/buildlist
+
+
+#!/bin/bash -x
+megals --reload
+
+sleep 1
+
+megals --export > /var/www/html/index.html
+
