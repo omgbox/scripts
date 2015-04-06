@@ -7,4 +7,4 @@ Password = yourpassword
 --------------------------------------------
 alternative, using the config file
 
-megastream --config ~/.megarc '/Root/Rambo_I_First_Blood_1982.avi' | mplayer -cache 2048 -
+megastream --config ~/.megarc '/Root/example.avi' | mplayer -cache 2048 -
