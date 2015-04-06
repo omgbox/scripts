@@ -1,4 +1,4 @@
-using megatools, to stream media fil through terminal using mplayer with cache,
+using megatools, to stream media file through terminal using mplayer with cache,
 it will not work if there is no cache.
 
 megastream -u xxxxx@gmail.com -p xxxxxxx '/Root/xxxxxxxx' | mplayer -cache 1024 -
