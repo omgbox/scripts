@@ -3,3 +3,8 @@ nano ~/.megarc (on linux) or mega.ini file containing these 3 lines:
 [Login]
 Username = your@email
 Password = yourpassword
+
+--------------------------------------------
+alternative, using the config file
+
+megastream --config ~/.megarc '/Root/Rambo_I_First_Blood_1982.avi' | mplayer -cache 2048 -
