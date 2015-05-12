@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+#btcat "url.torrent " 0 > download.avi this downlods creates download.avi
+#btcat "" shows list of files in torrent numbered
+#btcat "example.torrent" 0 | mplayer -cache 1024 -     starts download streaming pipe to - mplayer
+
 #http://www.rasterbar.com/products/libtorrent/manual.html
 import libtorrent as lt
 import time
