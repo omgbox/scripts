@@ -1,0 +1,9 @@
+
+
+nano /usr/bin/dumpitbro
+chmod +x /usr/bin/dumpitbro
+
+    #!/bin/bash
+    sudo apt-get install parallel
+    parallel -j 2 -- "mplayer -dumpstream -dumpfile ~/Downloads/dump.vlc http://your-yify-pop-address.com:8889" "sleep 15 && vlc
+
