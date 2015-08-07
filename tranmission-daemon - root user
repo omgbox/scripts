@@ -1,0 +1,13 @@
+beacuse developers in linux are suchgay ass fag sons of bitchs 
+they create permissions for everything. worst type of people.
+
+change this shit in 
+
+ edit /etc/init.d/transmission-daemon and set the "USER" variable to "root" to solve the folder permission issues
+ 
+ should be using the root account no fucking problems with tranmsission giving you fucking gay ass permission problems. 
+
+  NAME=transmission-daemon
+DAEMON=/usr/bin/$NAME
+> USER=root
+STOP_TIMEOUT=30
