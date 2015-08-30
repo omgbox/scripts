@@ -1,0 +1,23 @@
+inotify-tools
+
+chmod +x /usr/bin/directorycheck.sh
+
+#!/bin/bash
+inotifywait --monitor -e moved_to -e create /home/nodejs/Downloads | while read dir;
+do
+(/usr/bin/ffmpeg.sh)
+done
+
+
+chmod +x /usr/bin/ffmpeg.sh
+
+#!/bin/bash -x
+
+DIR=/home/nodejs/Downloads
+find $DIR -type f |
+while read i
+do
+#super fast iphone mp4 
+ffmpeg -y -i "$i" -f mp4 -vcodec mpeg4 -b 300k -r 24 -vf scale=320:240 -aspect 16:10 -acodec libvo_aacenc -ar 22050 -ac 2 -ab 48k "$i".mp4 -y ;
+
+done
