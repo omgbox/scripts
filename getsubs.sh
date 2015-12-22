@@ -1,6 +1,6 @@
 #!/bin/bash
 # Extract subtitles from each MKV file in the given directory
-
+# sudo apt-get install mkvtoolnix
 # If no directory is given, work in local dir
 if [ "$1" = "" ]; then
   DIR="."
