@@ -1,0 +1,22 @@
+get that stupid 
+http://moviethumbnail.sourceforge.net/
+
+rename to jet put in /usr/bin/jet
+
+nano /usr/bin/jetmake
+
+  GNU nano 2.2.6                                      File: /usr/bin/jetmake                                                                         Modified  
+--------------------------------------------------------------------------------
+#!/bin/bash -x
+find /var/www/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' \ 
+-exec jet -f /mnt/font.ttf -c 2 -r 3 -D8 "{}" \;
+-------------------------------------------------------------------------------
+chmod +x /usr/bin/jetmake
+
+finds all video extensions and makes thumbnail. 
+
+
+-exec jet -f /mnt/font.ttf -c 2 -r 3 -D8 "{}"
+
+find some good TTF font and place it in /mnt/font.ttf 
+
