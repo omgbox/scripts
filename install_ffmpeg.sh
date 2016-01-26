@@ -20,5 +20,3 @@ rm ffprobe
 sleep 1
 
 rm *.gz
-
-
