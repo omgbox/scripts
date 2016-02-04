@@ -1,0 +1,33 @@
+Install MP4Box (GPAC) in Ubuntu/Debian 
+
+
+-----------------------------------------------------------------------------------------------------
+apt-get install subversion
+
+Download the latest 'gpac' from svn repository.
+# svn co https://svn.code.sf.net/p/gpac/code/trunk/gpac gpac
+
+Configure the source package.
+# cd gpac
+# chmod +x configure
+# ./configure --disable-opengl --use-js=no --use-ft=no --use-jpeg=no --use-png=no --use-faad=no --use-mad=no --use-xvid=no --use-ffmpeg=no --use-ogg=no --use-vorbis=no --use-theora=no --use-openjpeg=no
+
+Install the gpack package.
+# make
+# make install
+# cp bin/gcc/libgpac.so /usr/lib
+
+
+Verify the installation
+
+# which MP4Box
+/usr/local/bin/MP4Box
+
+# /usr/local/bin/MP4Box
+-----------------------------------------------------------------------------------------------------
+nano /usr/bin/atomfix
+.....................................................................................................
+#!/bin/sh
+
+find /var/www/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|rar|RAR|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|jpg)$' -exec /usr/local/bin/MP4Box -add "{}" -fps X -new "{}" \;
+
