@@ -29,5 +29,5 @@ nano /usr/bin/atomfix
 .....................................................................................................
 #!/bin/sh
 
-find /var/www/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|rar|RAR|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|jpg)$' -exec /usr/local/bin/MP4Box -tmp "var/tmp" -add "{}" -fps X -new "{}" \;
+find /var/www/downloads -regextype posix-egrep -regex '.*\.(avi|m2ts|rar|RAR|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|jpg)$' -exec /usr/local/bin/MP4Box -tmp "/var/tmp" -add "{}" -fps X -new "{}" \;
 
