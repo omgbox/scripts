@@ -1,0 +1,14 @@
+ 33
+down vote
+	
+
+The easiest way is to use sshpass. This is available in Ubuntu/Debian repos and you don't have to deal with integrating expect with bash.
+
+An example:
+
+sshpass -p<password> ssh <arguments>
+sshpass -ptest1324 ssh user@192.168.1.200 ls -l /tmp
+
+apt-get install sshpass
+
+.... can remote connect to vps and send bash commands , right from local bash script like ovh ! cool
