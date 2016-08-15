@@ -1,0 +1,19 @@
+#!/bin/bash
+eopkg install -c system.devel -y
+wget http://bues.ch/b43/fwcutter/b43-fwcutter-018.tar.bz2
+tar xjf b43-fwcutter-018.tar.bz2
+cd b43-fwcutter-018
+make
+make install
+cd ..
+
+wget http://www.lwfinger.com/b43-firmware/broadcom-wl-5.100.138.tar.bz2
+tar xjf broadcom-wl-5.100.138.tar.bz2
+/usr/local/bin/b43-fwcutter -w "/lib/firmware" broadcom-wl-5.100.138/linux/wl_apsta.o
+
+#Opens up blacklist from broadcom-sta
+modprobe -r b43 bcma
+modprobe -r brcmsmac bcma
+modprobe -r wl
+modprobe b43
+sed -i "/\b\(b43\)\b/d" /etc/modprobe.d/broadcom-wl.conf
