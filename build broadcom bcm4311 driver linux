@@ -1,5 +1,5 @@
 #!/bin/bash
-eopkg install -c system.devel -y
+# build tools for solos os bullshit eopkg install -c system.devel -y
 wget http://bues.ch/b43/fwcutter/b43-fwcutter-018.tar.bz2
 tar xjf b43-fwcutter-018.tar.bz2
 cd b43-fwcutter-018
