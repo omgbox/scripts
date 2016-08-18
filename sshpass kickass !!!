@@ -6,8 +6,13 @@ The easiest way is to use sshpass. This is available in Ubuntu/Debian repos and 
 
 An example:
 
-sshpass -p<password> ssh <arguments>
-sshpass -ptest1324 ssh user@192.168.1.200 ls -l /tmp
+#!/bin/bash -x
+sshpass -p 'password' ssh user@website.com -o StrictHostKeyChecking=no
+
+
+this > -o StrictHostKeyChecking=no   bypass if your key has changed. 
+
+ 
 
 apt-get install sshpass
 
