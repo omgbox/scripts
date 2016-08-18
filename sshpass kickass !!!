@@ -1,10 +1,4 @@
- 33
-down vote
-	
 
-The easiest way is to use sshpass. This is available in Ubuntu/Debian repos and you don't have to deal with integrating expect with bash.
-
-An example:
 
 #!/bin/bash -x
 sshpass -p 'password' ssh user@website.com -o StrictHostKeyChecking=no
@@ -16,4 +10,3 @@ this > -o StrictHostKeyChecking=no   bypass if your key has changed.
 
 apt-get install sshpass
 
-.... can remote connect to vps and send bash commands , right from local bash script like ovh ! cool
