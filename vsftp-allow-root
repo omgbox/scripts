@@ -1,3 +1,6 @@
 nano /etc/ftpusers  
 
 remove root, to allow account to delete shit
+
+
+apt-get install vsftpd
