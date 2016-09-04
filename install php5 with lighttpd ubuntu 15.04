@@ -1,0 +1,20 @@
+This is a how-to to on installing and setting up lighttpd and PHP on Maverick. Lighttpd or "lighty" is a webserver with a very low use of resources.
+
+Install the packages we need: (this may not be all, but these two will automatically download the rest as dependencies)
+
+sudo apt-get install lighttpd php5-cgi
+
+Enable the fastcgi module and the php configuration with
+
+sudo lighty-enable-mod fastcgi 
+sudo lighty-enable-mod fastcgi-php
+
+Reload the lighttpd daemon
+
+sudo service lighttpd force-reload
+
+To test if it's working create the file /var/www/index.php with the following contents:
+
+<?php phpinfo(); ?>
+
+and check out http://localhost/index.php in your browser. 
