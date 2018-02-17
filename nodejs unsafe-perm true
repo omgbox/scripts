@@ -1,0 +1,4 @@
+npm config set user 0
+npm config set unsafe-perm true
+
+node 9, debian 8, allows to install with permissions 
