@@ -1,0 +1,7 @@
+pull mux download etc from youtube to mkx mp4 m4v
+
+youtube-dl -f 133+140  https://www.youtube.com/watch?v=ZmyVZRLOw3M --merge-output-format mkv
+
+utube encodes provides these encodes on all uploads, so we pick them
+133 standard bullshit
+140 standard bullshit
