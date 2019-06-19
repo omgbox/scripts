@@ -11,7 +11,8 @@ chmod a+x certbot-auto
 
 normally goes in /usr/bin/certbot-auto
 
-certbot certonly --webroot -w /srv/htdocs/web.itzgeek.com -d web.itzgeek.com
+certbot-auto certonly --webroot -w /var/www -d website.ovh -d www.website.ovh --register-unsafely-without-email
+
 
 
 Combine both certificate and private key in one file
