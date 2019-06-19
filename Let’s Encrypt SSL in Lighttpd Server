@@ -1,0 +1,34 @@
+Let’s Encrypt SSL in Lighttpd Server
+
+debian 8 64
+lighttpd
+lighttpd/1.4.35 (ssl) - a light and fast webserver
+Build-Date: Aug  2 2016 09:50:21
+
+
+wget https://dl.eff.org/certbot-auto
+chmod a+x certbot-auto
+
+normally goes in /usr/bin/certbot-auto
+
+certbot certonly --webroot -w /srv/htdocs/web.itzgeek.com -d web.itzgeek.com
+
+
+Combine both certificate and private key in one file
+
+cat /etc/letsencrypt/live/website.ovh/cert.pem /etc/letsencrypt/live/website.ovh/privkey.pem > /etc/letsencrypt/live/website.ovh/web.pem
+
+$SERVER["socket"] == ":443" {
+ssl.engine = "enable"
+ssl.pemfile = "/etc/letsencrypt/live/website.ovh/web.pem" # Combined Certificate
+ssl.ca-file = "/etc/letsencrypt/live/website.ovh/chain.pem" # Root CA
+server.name = "website.ovh" # Domain Name OR Virtual Host Name
+server.document-root = "/var/www" # Document Root
+}
+
+$HTTP["scheme"] == "http" {
+$HTTP["host"] == "website.ovh" { # HTTP URL
+url.redirect = ("/.*" => "https://www.website.ovh$0") # Redirection HTTPS URL
+}
+}
+
