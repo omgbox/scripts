@@ -1,0 +1,41 @@
+nano /etc/systemd/system/rclone.service
+
+
+paste, or change directory downloads2 into whatever you are using
+
+# /etc/systemd/system/rclone.service
+[Unit]
+Description=Google Drive (rclone)
+AssertPathIsDirectory=/var/www/downloads2
+After=plexdrive.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/rclone mount \
+        --config=/root/.config/rclone/rclone.conf \
+        --allow-other \
+        --cache-tmp-upload-path=/tmp/rclone/upload \
+        --cache-chunk-path=/tmp/rclone/chunks \
+        --cache-workers=8 \
+        --cache-writes \
+        --cache-dir=/tmp/rclone/vfs \
+        --cache-db-path=/tmp/rclone/db \
+        --no-modtime \
+        --drive-use-trash \
+        --stats=0 \
+        --checkers=16 \
+        --bwlimit=40M \
+        --dir-cache-time=60m \
+        --cache-info-age=60m pcloud:/ /var/www/downloads2
+ExecStop=/bin/fusermount -u /var/www/downloads2
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+
+
+start service debian 8
+
+systemctl start rclone
+systemctl enable rclone
