@@ -1,0 +1,49 @@
+debian 8 64bit
+
+sudo apt-get install python-pip python-m2crypto
+sudo pip install shadowsocks
+apt-get install sudo -y
+
+
+sudo yum install m2crypto python-setuptools
+sudo easy_install pip
+sudo pip install shadowsocks
+
+sudo nano /etc/shadowsocks.json
+
+
+{
+"server":"your_server_ip",
+"server_port":8000,
+"local_port":1080,
+"password":"your_passwd",
+"timeout":600,
+"method":"aes-256-cfb"
+}
+
+
+sudo ssserver -c /etc/shadowsocks.json -d start
+
+
+sudo ssserver -d stop
+
+
+sudo ssserver -c /etc/shadowsocks.json -d restart
+
+
+less /var/log/shadowsocks.log
+
+
+sudo iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
+
+
+autostart
+
+nano /etc/rc.local
+
+/usr/bin/python /usr/local/bin/ssserver -c /etc/shadowsocks.json -d start
+
+----------------------------------------
+cleaner version
+
+https://pypi.org/project/shadowsocks/
