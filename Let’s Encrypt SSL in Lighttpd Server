@@ -1,5 +1,7 @@
 Let’s Encrypt SSL in Lighttpd Server
 
+###  you must change lihgttpd directory to /var/www ,,,, do not use /var/www/html  , the people at lets encrypt added rate limits now 
+
 debian 8 64
 lighttpd
 lighttpd/1.4.35 (ssl) - a light and fast webserver
