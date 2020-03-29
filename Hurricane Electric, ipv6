@@ -1,0 +1,22 @@
+ubuntu 18.04
+
+generate tunnel from - Hurricane Electric - select netplan 
+               
+/etc/netplan/99-he-tunnel.yaml
+
+etwork:
+  version: 2
+  tunnels:
+    he-ipv6:
+      mode: sit
+      remote: 216.66.80.26
+      local: 51.91.77.172
+      addresses:
+        - "2001:470:1f08:3a8::2/64"
+      gateway6: "2001:470:1f08:3a8::1"
+
+
+netplan try
+netplan apply
+
+
