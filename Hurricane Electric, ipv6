@@ -19,4 +19,9 @@ etwork:
 netplan try
 netplan apply
 
+startup network device
 
+ip link set dev he-ipv6 up
+ip link set dev he-ipv6 down
+
+service network-manager status
