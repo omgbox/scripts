@@ -4,7 +4,7 @@ generate tunnel from - Hurricane Electric - select netplan
                
 /etc/netplan/99-he-tunnel.yaml
 
-etwork:
+network:
   version: 2
   tunnels:
     he-ipv6:
