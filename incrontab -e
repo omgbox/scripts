@@ -1,0 +1,17 @@
+bento 18.04 64
+
+apt install incron -y
+
+nano  /etc/incron.allow and add 
+root
+
+setup watch folder with crontab -e paste inside
+
+/mnt/downloads IN_CLOSE_WRITE /bin/bash /usr/bin/print.sh
+
+nano /usr/bin/print.sh
+
+#!/bin/bash
+
+cd /mnt/downloads && find -iname "*.mkv" -exec mkv-extract-subtitles.sh '{}' \;
+
