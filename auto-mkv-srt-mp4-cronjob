@@ -19,14 +19,16 @@ done
 process.sh
 
 #!/bin/bash -x
-find /mnt/incoming -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec /usr/bin/mkv.sh "{}" \;
+find /mnt/incoming -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec /usr/bin/mkv.sh "{$
 sleep 3
-find /mnt/incoming -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec ffmpeg -i "{}" -c copy "{}.mp4" \;
+find /mnt/incoming -regextype posix-egrep -regex '.*\.(avi|m2ts|flv|M2TS|3gp|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec ffmpeg -i "{}" -c $
 sleep 3
-find /mnt/incoming -regextype posix-egrep -regex '.*\.(avi|m2ts|webvtt|M2TS|vtt|ssa|srt|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec mv "{}" /mnt/downloads \;
+find /mnt/incoming -regextype posix-egrep -regex '.*\.(avi|m2ts|webvtt|M2TS|vtt|ssa|srt|AVI|MPG|mkv|MKV|ogv|wmv|WMV|mp4|mpg|divx|MPG|mpeg|ogg|ogm)$' -exec mv "{}"$
 sleep 3
-# CONVERT SSA SUBTITLES TO SRT 
-find /mnt/downloads -regextype posix-egrep -regex '.*\.(vtt|ssa|webvtt|srt)$' -exec astisub convert -i "{}" -o "{}.srt" \;
+find /mnt/downloads -regextype posix-egrep -regex '.*\.(vtt|ssa)$' -exec astisub convert -i "{}" -o "{}.srt" \;
+sleep 3
+cd /mnt/downloads/ && rm -rf *ssa
+
 ---------------------------------------------------
 
 
