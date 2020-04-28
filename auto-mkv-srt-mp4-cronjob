@@ -128,5 +128,8 @@ done
 
 --------------------------------------------------------------------------------------------------------------------
 
+copy binary into /usr/bin/astisub
 
+chmod +x /usr/bin/astisub
 
+ready to be used, for coverting subtitles
