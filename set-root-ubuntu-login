@@ -1,0 +1,6 @@
+subsystem for linux , to set auto login to root, change
+
+sudo nano /etc/passwd
+copy root:x:0:0:root:/root:/bin/bash
+
+replace root with your normal username
