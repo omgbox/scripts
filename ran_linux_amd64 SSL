@@ -1,0 +1,1 @@
+./ran_linux_amd64 -root=data -p=80 -cert=cert1.pem -key=privkey1.pem -tls-port=443 -tls-policy=redirect
