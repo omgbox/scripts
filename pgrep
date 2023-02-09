@@ -1,0 +1,17 @@
+bootup.sh
+#!/bin/bash
+if [[ ! $(pgrep -f http.sh) ]]; then
+    /usr/bin/http.sh
+fi
+
+
+http.sh
+#!/bin/bash
+/home/torrent -port=8000 -dir="/tmp"
+
+
+every 15mins check if script online, if not bootup.sh and start torrent
+
+crontab -e
+*/15 * * * * /usr/bin/bootup.sh
+
