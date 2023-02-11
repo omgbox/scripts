@@ -1,3 +1,7 @@
+apt install nginx -y
+
+nano /etc/nginx/sites-enabled/default 
+
 server { listen 80; listen [::]:80;
          listen 443 ssl;
 
