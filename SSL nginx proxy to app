@@ -1,21 +1,18 @@
-server {
-  listen 80;
-  listen [::]:80;
+server { listen 80; listen [::]:80;
          listen 443 ssl;
- 
- 
+
+
     ssl                  on;
     ssl_certificate      /home/cert/certificates.crt;
     ssl_certificate_key  /home/cert/private.key;
- 
-  server_name example.com www.example.com;
- 
+
+  server_name site.com www.site.com;
+
   location / {
       proxy_pass http://localhost:3000/;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
   }
 }
-
-
-edit nano /etc/nginx/sites-enabled/default 
-add your example.com domain. 
-
