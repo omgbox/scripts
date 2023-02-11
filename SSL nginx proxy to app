@@ -1,0 +1,21 @@
+server {
+  listen 80;
+  listen [::]:80;
+         listen 443 ssl;
+ 
+ 
+    ssl                  on;
+    ssl_certificate      /home/cert/certificates.crt;
+    ssl_certificate_key  /home/cert/private.key;
+ 
+  server_name example.com www.example.com;
+ 
+  location / {
+      proxy_pass http://localhost:3000/;
+  }
+}
+
+
+edit nano /etc/nginx/sites-enabled/default 
+add your example.com domain. 
+
