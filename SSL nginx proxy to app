@@ -36,7 +36,7 @@ listen               443 ssl;
     ssl_certificate      /home/cert/certificate2.crt;
     ssl_certificate_key  /home/cert/private.key;
 
-  server_name rsd.ovh www.rsd.ovh;
+  server_name site.com www.site.com;
 
   location / {
       proxy_pass http://localhost:3000/;
