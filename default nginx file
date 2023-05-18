@@ -1,0 +1,57 @@
+SSL,Transmission-daemon,folder listing 
+
+
+server { listen 80;
+
+
+listen               443 ssl;
+
+
+    ssl                  on;
+    ssl_certificate      /home/certs/certificateNEW.crt;
+    ssl_certificate_key  /home/certs/private.key;
+
+  server_name off.ovh www.off.ovh;
+
+  location / {
+	proxy_buffering off;
+      proxy_pass http://localhost:3000/;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+
+   #TRANSMISSION TORRENT WEB CLIENT SETUP START FOR MY PI
+        location /transmission/ {
+        proxy_read_timeout 300;
+        proxy_pass_header  X-Transmission-Session-Id;
+        proxy_set_header   X-Forwarded-Host $host;
+        proxy_set_header   X-Forwarded-Server $host;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # if you changed the port number for transmission daemon, then adjust the
+        # folllowing line
+        proxy_pass         http://127.0.0.1:9091/transmission/web/;
+        }
+
+        # Also Transmission specific
+    location /rpc {
+        proxy_pass         http://127.0.0.1:9091/transmission/rpc;
+    }
+#TRANSMISSION TORRENT WEB CLIENT SETUP END
+
+       
+    location /upload {
+        proxy_pass         http://127.0.0.1:9091/transmission/upload;
+   
+
+}
+location /downloads {  # new url path
+   alias /var/lib/transmission-daemon/downloads/; # directory to list
+   autoindex on;
+}
+}
+}
+
+passes nginx -t
