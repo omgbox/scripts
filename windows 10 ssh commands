@@ -1,0 +1,5 @@
+upload file to remote server
+scp C:\apps\app.exe root@example.com:/home
+
+download remote file to local machine 
+scp root@example.com:/home/Doc.txt C:\apps\games.exe
