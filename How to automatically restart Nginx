@@ -1,0 +1,14 @@
+Create /root/nginxfix.sh file with next content: and chmod +x /root/nginxfix.sh
+
+#!/bin/bash
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+if [[ ! "$(/etc/init.d/nginx status)" =~ "active (running)" ]]
+then
+    echo $(date -u) "NGINX server has been stopped. It has now been restarted."
+    service nginx start
+fi
+
+
+crontab -e
+
+*/60 * * * * /root/nginxfix.sh >> /var/log/nginxfix.log 2>&1
