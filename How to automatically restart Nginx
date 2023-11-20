@@ -12,3 +12,8 @@ fi
 crontab -e
 
 */60 * * * * /root/nginxfix.sh >> /var/log/nginxfix.log 2>&1
+
+
+restart all over again
+
+Run apt-get remove --purge nginx nginx-full nginx-common first, and then apt-get install nginx and see if it works.
