@@ -1,0 +1,1 @@
+Run apt-get remove --purge nginx nginx-full nginx-common first, and then apt-get install nginx and see if it works.
