@@ -15,7 +15,7 @@ domain.ovh {
     reverse_proxy localhost:3000 
     # tell Caddy to reverse proxy that port to your subdomain
 }
-www.rsd.ovh {
+www.domain.ovh {
   redir https://domain.ovh{uri} permanent
 }
 http://www.domain.ovh {
