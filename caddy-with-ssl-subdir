@@ -1,0 +1,38 @@
+ubuntu 20.24
+apt install cadddy
+transmission-daemon + directiryt listing + SSL
+
+:80 {
+        # Set this path to your site's directory.
+        root * /var/lib/transmission-daemon/downloads
+
+        # Enable the static file server.
+        file_server /var/lib/transmission-daemon/downloads/*
+
+        # Another common task is to set up a reverse proxy:
+#       reverse_proxy localhost:9091
+
+        # Or serve a PHP site through php-fpm:
+        # php_fastcgi localhost:9000
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
+domain.com {
+reverse_proxy localhost:9091
+
+ handle_path /files* {
+        root * /var/lib/transmission-daemon/downloads
+        file_server browse
+    }    # tell Caddy to reverse proxy that port to your subdomain
+}
+www.rsd.ovh {
+  redir https://domain.com{uri} permanent
+}
+http://www.domain.com {
+  redir https://domain.com{uri} permanent
+}
+https://www.domain.com {
+  redir https://domain.com{uri} permanent
+}
+
