@@ -1,0 +1,128 @@
+npm install express webtorrent-hybrid
+
+  Your package.json should look like this:
+
+{
+  "name": "torrent-stream-server",
+  "version": "1.0.0",
+  "description": "A Node.js HTTP server to convert any torrent to video stream",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "webtorrent-hybrid": "^4.0.3"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
+
+Step 2: Modify server.js
+
+  const express = require('express');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+
+// Serve the video stream
+app.get('/stream', async (req, res) => {
+    const magnetLink = req.query.magnet;
+
+    if (!magnetLink) {
+        return res.status(400).send('Magnet link is required');
+    }
+
+    try {
+        // Dynamically import webtorrent-hybrid
+        const WebTorrent = (await import('webtorrent-hybrid')).default;
+        const client = new WebTorrent();
+
+        // Add the torrent
+        client.add(magnetLink, (torrent) => {
+            console.log('Torrent added:', torrent.name);
+
+            // Find the first video file in the torrent (either .mp4 or .mkv)
+            const file = torrent.files.find(file => file.name.endsWith('.mp4') || file.name.endsWith('.mkv'));
+
+            if (!file) {
+                return res.status(404).send('No video file found in the torrent');
+            }
+
+            // Handle range requests for seeking
+            const range = req.headers.range;
+            if (range) {
+                const parts = range.replace(/bytes=/, "").split("-");
+                const start = parseInt(parts[0], 10);
+                const end = parts[1] ? parseInt(parts[1], 10) : file.length - 1;
+
+                if (start >= file.length) {
+                    return res.status(416).send('Requested range not satisfiable\n' + start + ' >= ' + file.length);
+                }
+
+                const chunkSize = (end - start) + 1;
+                const stream = file.createReadStream({ start, end });
+
+                res.writeHead(206, {
+                    'Content-Range': `bytes ${start}-${end}/${file.length}`,
+                    'Accept-Ranges': 'bytes',
+                    'Content-Length': chunkSize,
+                    'Content-Type': file.name.endsWith('.mp4') ? 'video/mp4' : 'video/x-matroska',
+                });
+
+                stream.pipe(res);
+
+                // Handle client disconnect
+                req.on('close', () => {
+                    console.log('Client disconnected');
+                    stream.destroy();
+                    torrent.destroy();
+                });
+
+                // Handle errors
+                stream.on('error', (err) => {
+                    console.error('Stream error:', err);
+                    if (!res.headersSent) {
+                        res.status(500).send('Error streaming video');
+                    }
+                });
+            } else {
+                // Full file streaming
+                res.writeHead(200, {
+                    'Content-Length': file.length,
+                    'Content-Type': file.name.endsWith('.mp4') ? 'video/mp4' : 'video/x-matroska',
+                });
+
+                const stream = file.createReadStream();
+                stream.pipe(res);
+
+                // Handle client disconnect
+                req.on('close', () => {
+                    console.log('Client disconnected');
+                    stream.destroy();
+                    torrent.destroy();
+                });
+
+                // Handle errors
+                stream.on('error', (err) => {
+                    console.error('Stream error:', err);
+                    if (!res.headersSent) {
+                        res.status(500).send('Error streaming video');
+                    }
+                });
+            }
+        });
+    } catch (err) {
+        console.error('Error loading webtorrent-hybrid:', err);
+        res.status(500).send('Error loading webtorrent-hybrid');
+    }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+
