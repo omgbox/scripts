@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Torrent Streaming Server Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: Consolas, monospace;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Go Torrent Streaming Server Documentation</h1>
+
+<div class="section">
+    <h2>1. Install Go</h2>
+    <p>Download and install Go from the official website:</p>
+    <ul>
+        <li><a href="https://golang.org/dl/">Go Downloads</a></li>
+        <li><a href="https://golang.org/doc/install">Go Installation Guide</a></li>
+    </ul>
+</div>
+
+<div class="section">
+    <h2>2. Set Up Go Environment</h2>
+    <p>Ensure your Go environment is properly configured. This includes setting the <code>GOPATH</code> and <code>GOROOT</code> environment variables and adding the Go binary directory to your system's <code>PATH</code>.</p>
+</div>
+
+<div class="section">
+    <h2>3. Create a New Go Module</h2>
+    <p>Create a new directory for your project and initialize a new Go module:</p>
+    <pre><code>mkdir torrent-streamer
+cd torrent-streamer
+go mod init torrent-streamer</code></pre>
+</div>
+
+<div class="section">
+    <h2>4. Install Required Packages</h2>
+    <p>Install the <code>github.com/anacrolix/torrent</code> package:</p>
+    <pre><code>go get github.com/anacrolix/torrent</code></pre>
+</div>
+
+<div class="section">
+    <h2>5. Create the Go Server Code</h2>
+    <p>Create a new file named <code>main.go</code> in your project directory and paste the following code:</p>
+    <pre><code>package main
+
+import (
+    "fmt"
+    "io"
+    "log"
+    "net/http"
+    "os"
+    "path/filepath"
+    "sync"
+    "time"
+
+    "github.com/anacrolix/torrent"
+    "github.com/anacrolix/torrent/metainfo"
+    "github.com/anacrolix/torrent/storage"
+)
+
+type streamer struct {
+    client *torrent.Client
+    mu     sync.Mutex
+}
+
+func newStreamer(client *torrent.Client) *streamer {
+    return &streamer{
+        client: client,
+    }
+}
+
+func (s *streamer) stream(w http.ResponseWriter, r *http.Request) {
+    magnetLink := r.URL.Query().Get("magnet")
+    if magnetLink == "" {
+        http.Error(w, "Magnet link is required", http.StatusBadRequest)
+        return
+    }
+
+    // Log the magnet link being processed
+    log.Printf("Processing magnet link: %s", magnetLink)
+
+    // Add the torrent to the client
+    t, err := s.client.AddMagnet(magnetLink)
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error adding magnet: %v", err), http.StatusInternalServerError)
+        log.Printf("Error adding magnet: %v", err)
+        return
+    }
+    <-t.GotInfo()
+
+    // Find the largest video file in the torrent
+    var videoFile *torrent.File
+    for _, file := range t.Files() {
+        if videoFile == nil || file.Length() > videoFile.Length() {
+            videoFile = file
+        }
+    }
+
+    if videoFile == nil {
+        http.Error(w, "No video file found in the torrent", http.StatusNotFound)
+        log.Println("No video file found in the torrent")
+        return
+    }
+
+    // Log the video file being streamed
+    log.Printf("Streaming video file: %s", videoFile.Path())
+
+    // Determine the content type based on the file extension
+    contentType := "video/mp4"
+    if filepath.Ext(videoFile.Path()) == ".mkv" {
+        contentType = "video/x-matroska"
+    }
+
+    // Handle range requests for partial content
+    rangeHeader := r.Header.Get("Range")
+    var start, end int64
+    var contentLength int64
+    if rangeHeader != "" {
+        fmt.Sscanf(rangeHeader, "bytes=%d-%d", &start, &end)
+        if end == 0 {
+            end = videoFile.Length() - 1
+        }
+        contentLength = end - start + 1
+    } else {
+        start = 0
+        end = videoFile.Length() - 1
+        contentLength = videoFile.Length()
+    }
+
+    // Stream the video file to the client
+    w.Header().Set("Content-Type", contentType)
+    w.Header().Set("Content-Length", fmt.Sprintf("%d", contentLength))
+    w.Header().Set("Accept-Ranges", "bytes")
+    w.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, videoFile.Length()))
+    w.WriteHeader(http.StatusPartialContent)
+
+    // Create a reader for the video file
+    reader := videoFile.NewReader()
+    defer reader.Close()
+
+    // Seek to the start position
+    _, err = reader.Seek(start, io.SeekStart)
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error seeking in file: %v", err), http.StatusInternalServerError)
+        log.Printf("Error seeking in file: %v", err)
+        return
+    }
+
+    // Stream the video file to the client in chunks
+    buf := make([]byte, 1024*1024) // 1MB buffer
+    for {
+        n, err := reader.Read(buf)
+        if err != nil && err != io.EOF {
+            http.Error(w, fmt.Sprintf("Error reading file: %v", err), http.StatusInternalServerError)
+            log.Printf("Error reading file: %v", err)
+            return
+        }
+        if n > 0 {
+            _, err := w.Write(buf[:n])
+            if err != nil {
+                http.Error(w, fmt.Sprintf("Error writing to client: %v", err), http.StatusInternalServerError)
+                log.Printf("Error writing to client: %v", err)
+                return
+            }
+            w.(http.Flusher).Flush()
+        }
+        if err == io.EOF || n == 0 {
+            break
+        }
+    }
+
+    // Log the completion of the stream
+    log.Println("Stream completed")
+}
+
+func clearDownloadsFolder(dir string) {
+    err := os.RemoveAll(dir)
+    if err != nil {
+        log.Printf("Error clearing downloads folder: %v", err)
+    } else {
+        log.Println("Downloads folder cleared")
+    }
+}
+
+func main() {
+    // Create a new torrent client
+    clientConfig := torrent.NewDefaultClientConfig()
+    clientConfig.DataDir = "./downloads"
+    clientConfig.DefaultStorage = storage.NewFileByInfoHash(clientConfig.DataDir)
+    client, err := torrent.NewClient(clientConfig)
+    if err != nil {
+        log.Fatalf("Error creating torrent client: %v", err)
+    }
+    defer client.Close()
+
+    // Create a new streamer
+    streamer := newStreamer(client)
+
+    // Define the HTTP handler for streaming the video
+    http.HandleFunc("/stream", streamer.stream)
+
+    // Start the HTTP server on port 3000
+    log.Println("Server started at http://localhost:3000")
+
+    // Start a goroutine to clear the downloads folder every 3 hours
+    go func() {
+        for {
+            time.Sleep(3 * time.Hour)
+            clearDownloadsFolder("./downloads")
+        }
+    }()
+
+    log.Fatal(http.ListenAndServe(":3000", nil))
+}</code></pre>
+</div>
+
+<div class="section">
+    <h2>6. Run the Server</h2>
+    <p>Run the server using the following command:</p>
+    <pre><code>go run main.go</code></pre>
+</div>
+
+<div class="section">
+    <h2>7. Test the Server</h2>
+    <p>Test the server by visiting the following URL in your browser:</p>
+    <pre><code>http://localhost:3000/stream?magnet=&lt;magnet_link&gt;</code></pre>
+    <p>Replace <code>&lt;magnet_link&gt;</code> with the actual magnet link of the torrent you want to stream.</p>
+</div>
+
+<div class="section">
+    <h2>8. Build the Server Statically</h2>
+    <p>Build the server statically using the following command:</p>
+    <pre><code>CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o torrent-streamer .</code></pre>
+    <p>This will create a statically linked binary named <code>torrent-streamer</code>.</p>
+</div>
+
+<div class="section">
+    <h2>9. Run the Statically Built Server</h2>
+    <p>After building the server statically, you can transfer the binary to your target system and run it using:</p>
+    <pre><code>./torrent-streamer</code></pre>
+</div>
+
+<div class="section">
+    <h2>Summary</h2>
+    <ol>
+        <li><strong>Install Go 1.16 or Later</strong>: Download and install the latest version of Go from the official website.</li>
+        <li><strong>Verify Go Version</strong>: Ensure that Go 1.16 or later is installed by running <code>go version</code>.</li>
+        <li><strong>Run the Server</strong>: Use <code>go run main.go</code> to start the server.</li>
+        <li><strong>Test the Server</strong>: Visit the URL in your browser to test the streaming functionality.</li>
+        <li><strong>Build the Server</strong>: Optionally, build the server into an executable binary.</li>
+    </ol>
+</div>
+
+</body>
+</html>
