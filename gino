@@ -1,5 +1,8 @@
 go run main.go -port=8080 -download-dir=./mydownloads
-
+-------------------------------------------------------------------------------------------------------------
+go get github.com/anacrolix/torrent
+go get github.com/gin-gonic/gin
+-------------------------------------------------------------------------------------------------------------
 
   using gin framework and anacrolix
   Torrent to http streaming gino app , example endpoint http://side.com/stream?torrent=
