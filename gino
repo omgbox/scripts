@@ -1,0 +1,172 @@
+go run main.go -port=8080 -download-dir=./mydownloads
+
+
+  using gin framework and anacrolix
+  Torrent to http streaming gino app , example endpoint http://side.com/stream?torrent=
+
+
+---------------------------------------------------------------------------------------------------------------
+package main
+
+import (
+	"flag"
+	"fmt"
+	"github.com/anacrolix/torrent"
+	"github.com/gin-gonic/gin"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+)
+
+var clientPool = sync.Pool{
+	New: func() interface{} {
+		clientConfig := torrent.NewDefaultClientConfig()
+		clientConfig.ListenPort = 0 // Use a random available port
+		client, err := torrent.NewClient(clientConfig)
+		if err != nil {
+			log.Fatalf("Failed to create torrent client: %s", err)
+		}
+		return client
+	},
+}
+
+var metadataCache = make(map[string]*torrent.Torrent)
+var cacheMutex sync.Mutex
+
+func main() {
+	// Parse command-line arguments
+	port := flag.String("port", "8080", "Port to run the server on")
+	downloadDir := flag.String("download-dir", "./downloads", "Directory to store downloaded files")
+	flag.Parse()
+
+	// Create the download directory if it doesn't exist
+	if err := os.MkdirAll(*downloadDir, os.ModePerm); err != nil {
+		log.Fatalf("Failed to create download directory: %s", err)
+	}
+
+	// Set the download directory for the torrent client
+	clientConfig := torrent.NewDefaultClientConfig()
+	clientConfig.DataDir = *downloadDir
+	clientConfig.ListenPort = 0 // Use a random available port
+
+	// Initialize the torrent client pool with the custom configuration
+	clientPool = sync.Pool{
+		New: func() interface{} {
+			client, err := torrent.NewClient(clientConfig)
+			if err != nil {
+				log.Fatalf("Failed to create torrent client: %s", err)
+			}
+			return client
+		},
+	}
+
+	r := gin.Default()
+
+	r.GET("/stream", streamTorrent)
+
+	// Start HTTP/1.1 server
+	if err := r.Run(":" + *port); err != nil {
+		log.Fatalf("Failed to start HTTP/1.1 server: %s", err)
+	}
+}
+
+func streamTorrent(c *gin.Context) {
+	magnetURI := c.Query("torrent")
+	if magnetURI == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Magnet URI is required"})
+		return
+	}
+
+	// Get a torrent client from the pool
+	client := clientPool.Get().(*torrent.Client)
+	defer clientPool.Put(client)
+
+	// Check if metadata is already cached
+	var t *torrent.Torrent
+	cacheMutex.Lock()
+	t, ok := metadataCache[magnetURI]
+	cacheMutex.Unlock()
+
+	if !ok {
+		var err error
+		t, err = client.AddMagnet(magnetURI)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add torrent"})
+			return
+		}
+
+		<-t.GotInfo()
+
+		// Cache the metadata
+		cacheMutex.Lock()
+		metadataCache[magnetURI] = t
+		cacheMutex.Unlock()
+	}
+
+	file := t.Files()[0]
+	reader := file.NewReader()
+	defer reader.Close()
+
+	// Determine the content type based on the file extension
+	contentType := "video/mp4"
+	if strings.HasSuffix(file.Path(), ".mkv") {
+		contentType = "video/x-matroska"
+	}
+
+	c.Header("Content-Type", contentType)
+	c.Header("Content-Disposition", "inline; filename="+filepath.Base(file.Path()))
+	c.Header("Accept-Ranges", "bytes")
+
+	// Handle Range requests for seeking and segmented streaming
+	rangeHeader := c.GetHeader("Range")
+	if rangeHeader != "" {
+		parts := strings.Split(strings.Replace(rangeHeader, "bytes=", "", 1), "-")
+		start, err := strconv.ParseInt(parts[0], 10, 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid range header"})
+			return
+		}
+		end := int64(file.Length()) - 1
+		if len(parts) > 1 && parts[1] != "" {
+			end, err = strconv.ParseInt(parts[1], 10, 64)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid range header"})
+				return
+			}
+		}
+
+		if start >= 0 && start < end && end < int64(file.Length()) {
+			_, err := reader.Seek(start, io.SeekStart)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to seek file"})
+				return
+			}
+			c.Header("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, file.Length()))
+			c.Header("Content-Length", strconv.FormatInt(end-start+1, 10))
+			c.Status(http.StatusPartialContent)
+		} else {
+			c.Header("Content-Length", strconv.FormatInt(file.Length(), 10))
+			c.Status(http.StatusOK)
+		}
+	} else {
+		c.Header("Content-Length", strconv.FormatInt(file.Length(), 10))
+		c.Status(http.StatusOK)
+	}
+
+	// Use io.CopyBuffer for efficient I/O operations
+	const bufferSize = 1 * 1024 * 1024 // 1MB
+	buffer := make([]byte, bufferSize)
+
+	// Copy data from the reader to the response writer
+	_, err := io.CopyBuffer(c.Writer, reader, buffer)
+	if err != nil && err != io.EOF && !strings.Contains(err.Error(), "write: broken pipe") {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to stream file"})
+		return
+	}
+}
+---------------------------------------------------------------------------------------------------------------
