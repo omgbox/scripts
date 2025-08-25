@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+GO_VERSION="${GO_VERSION:-1.22.5}"   # change or export before running
+INSTALL_DIR="${INSTALL_DIR:-/usr/local}"
+PROFILE_FILE="${PROFILE_FILE:-$HOME/.bashrc}"
+
+echo "📦 Downloading Go ${GO_VERSION}..."
+curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz
+
+echo "🧹 Removing old Go install (if any)..."
+sudo rm -rf "${INSTALL_DIR}/go"
+
+echo "📂 Installing to ${INSTALL_DIR}..."
+sudo tar -C "${INSTALL_DIR}" -xzf /tmp/go.tar.gz
+rm /tmp/go.tar.gz
+
+if ! grep -q 'export PATH=.*/go/bin' "${PROFILE_FILE}"; then
+    echo "🔧 Adding Go to PATH in ${PROFILE_FILE}..."
+    echo "export PATH=\$PATH:${INSTALL_DIR}/go/bin" >> "${PROFILE_FILE}"
+fi
+
+echo "✅ Go ${GO_VERSION} installed! Restart your shell or run:"
+echo "    export PATH=\$PATH:${INSTALL_DIR}/go/bin"
+
+"${INSTALL_DIR}/go/bin/go" version
