@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 INSTALL_DIR="/usr/local/bin"
 TMP_DIR="$(mktemp -d)"
 ARCH="$(uname -m)"
@@ -28,3 +27,4 @@ rm -rf "$TMP_DIR"
 echo "✅ FFmpeg and ffprobe installed to $INSTALL_DIR"
 echo "🎬 FFmpeg version: $(ffmpeg -version | head -n 1)"
 echo "🔍 ffprobe version: $(ffprobe -version | head -n 1)"
+
