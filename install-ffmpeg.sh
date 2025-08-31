@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
- 
+
 INSTALL_DIR="/usr/local/bin"
 TMP_DIR="$(mktemp -d)"
 ARCH="$(uname -m)"
