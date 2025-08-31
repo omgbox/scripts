@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 INSTALL_DIR="/usr/local/bin"
 TMP_DIR="$(mktemp -d)"
@@ -25,6 +26,5 @@ rm -rf "$TMP_DIR"
 
 # Confirm installation
 echo "✅ FFmpeg and ffprobe installed to $INSTALL_DIR"
-echo "🎬 FFmpeg version: $(ffmpeg -version | head -n 1)"
-echo "🔍 ffprobe version: $(ffprobe -version | head -n 1)"
-
+ffmpeg -version | head -n 1
+ffprobe -version | head -n 1
